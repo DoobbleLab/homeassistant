@@ -1,0 +1,162 @@
+homeassistant:
+  customize_glob:
+    'lock.aurora_*doors':
+      friendly_name: Doors
+    'cover.aurora_charger_door':
+      friendly_name: Charger Door
+    'cover.aurora_*frunk':
+      friendly_name: Frunk
+    'cover.aurora_*trunk':
+      friendly_name: Trunk
+    'binary_sensor.aurora_*parking_brake':
+      friendly_name: Parking Brake
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+mqtt:
+  sensor: !include mqtt_sensor.yaml
+  binary_sensor: !include mqtt_binary_sensor.yaml
+sensor: !include sensor.yaml
+binary_sensor: !include binary_sensor.yaml
+frontend:
+  themes: !include_dir_merge_named themes
+
+## TO ENABLE PROXY
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - 172.0.0.0/9
+    - 10.0.0.0/16
+    - 192.168.0.0/16
+
+
+## ----------------------- DASHBOARDS
+## See https://github.com/thomasloven/hass-lovelace_gen
+lovelace_gen:
+
+lovelace:
+  mode: yaml
+  
+  resources:
+      ## See https://github.com/jonkristian/entur-card and https://github.com/jonkristian/entur-card/blob/master/dist/entur-card.js
+      - url: /local/entur-card.js?v=1
+        type: js
+      ## See https://smarthomescene.com/guides/mushroom-cards-complete-guide-to-a-clean-minimalistic-home-assistant-ui/#hacs
+      ## See https://github.com/piitaya/lovelace-mushroom
+      - url: /hacsfiles/lovelace-mushroom/mushroom.js
+        type: module
+      ## See https://github.com/kalkih/mini-graph-card
+      - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+        type: module
+      ## See https://github.com/RomRider/apexcharts-card
+      - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+        type: module
+      ## See https://github.com/custom-cards/bar-card
+      - url: /hacsfiles/bar-card/bar-card.js
+        type: module
+      ## See https://github.com/nervetattoo/simple-thermostat
+      - url: /hacsfiles/simple-thermostat/simple-thermostat.js
+        type: module
+      ## See https://github.com/EvTheFuture/SmartCharging
+      - url: /hacsfiles/ev_charge_control/ev_charge_control.py
+        type: module
+                
+  # Add dashboards
+  dashboards:
+    lovelace-generated: # Needs to contain a hyphen (-)
+      mode: yaml
+      filename: lovelace-notexist.yaml
+      title: Generated
+      icon: mdi:tools
+      show_in_sidebar: true
+      require_admin: true
+    lovelace-teslamate:
+      mode: yaml
+      title: Teslamate
+      show_in_sidebar: true
+      filename: lovelace-teslamate.yaml
+    lovelace-tesla-test:
+      mode: yaml
+      title: Tesla Test
+      show_in_sidebar: true
+      filename: lovelace_views_tesla.yaml
+    lovelace-persaunet:
+      mode: yaml
+      title: Persaunet
+      show_in_sidebar: true
+      filename: lovelace-persaunet.yaml
+    lovelace-persaunetv2:
+      mode: yaml
+      title: Persaunet v2
+      show_in_sidebar: true
+      filename: lovelace-persaunetv2.yaml
+
+## ----------------------- TESLAMATE
+proximity:
+  home_tesla:
+    zone: home
+    devices:
+      - device_tracker.tesla_location
+    tolerance: 10
+    unit_of_measurement: km
+
+notify:
+- name: gotify
+  platform: rest
+  resource: https://gotify.gwerner.me/message
+  method: POST_JSON
+  headers: 
+    X-Gotify-Key: !secret gotify_key
+  message_param_name: message
+  title_param_name: title
+
+## -----------------------  GARMIN
+## See https://smarthomescene.com/guides/how-to-connect-garmin-watch-to-home-assistant/
+## TO DO
+
+## THEME TO DO:
+## https://github.com/Madelena/Metrology-for-Hass
+
+## -----------------------  GOOGLE ASSISTANT
+## See https://www.youtube.com/watch?v=RqGi_GI0ltU
+google_assistant:
+  project_id: smart-home-38eb7
+  service_account: !include google_assistant_SERVICE_ACCOUNT.json
+  report_state: true
+  exposed_domains:
+    - switch
+    - light
+
+switch:
+  - platform: template
+    switches:
+      scene_set_light_cozy:
+        turn_on:
+          service: scene.turn_on
+          entity_id: scene.cozy
+        turn_off:
+          service: scene.turn_on
+          entity_id: scene.cozy
+      script_set_light_cozy:
+        turn_on:
+          service: script.turn_on_light_cozy
+        turn_off:
+          service: script.turn_off_light_cozy
+        value_template: '{{is_state("light.office","on")}}'
+
+# Helper to keep the start time
+input_datetime:
+  start_cheapest_hours_time:
+    name: Next start of cheapest hours
+    has_time: true
+    has_date: false

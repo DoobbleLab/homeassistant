@@ -1,0 +1,143 @@
+title: Home
+views:
+  - title: Home
+    path: home
+    icon: hass:home
+    badges:
+      - entity: person.geoffrey
+      - entity: sensor.tesla_battery_level
+        name: Aurora
+      - entity: light.home
+    cards:
+      - type: glance
+        entities:
+          - entity: sensor.baderoom_temperature
+            name: Baderoom
+          - entity: sensor.stua_temperature
+            name: Stua
+          - entity: sensor.kontoret_temperature
+            name: Kontoret
+          - entity: sensor.soveroom_temperature
+            name: Søveroom
+          - entity: sensor.outdoor_temperature
+            name: Ute
+        state_color: true
+        show_icon: false 
+        show_name: true
+      - type: glance
+        entities:
+          - entity: light.home
+          - entity: light.entrance
+          - entity: light.stua
+          - entity: light.stua_gulvlampe
+            name: S. Gulv
+          - entity: light.office
+          - entity: light.soveroom
+        state_color: true
+        show_icon: true
+        show_name: true
+      - type: entities
+        entities:
+          - entity: scene.movie
+          - entity: scene.turn_off_all_lights
+          - entity: script.androidtv_netflix
+        # footer:
+        #   type: buttons
+        #   entities:
+        #     - entity: script.androidtv_netflix
+        #       show_icon: true
+        #       show_name: true
+        #     - entity: script.androidtv_spotify
+        #       show_icon: true
+        #       show_name: true
+        #     - entity: script.spotify_play
+        #       show_icon: true
+        #       show_name: true
+        #     - entity: scene.turn_off_all_lights
+        #       show_icon: true
+        #       show_name: true
+        #       icon: "mdi:track-light"
+        state_color: true
+      - type: weather-forecast
+        entity: weather.forecast_home
+        show_forecast: true
+        secondary_info_attribute: wind_speed
+      - type: glance
+        entities:
+          - entity: sensor.tesla_battery_level
+            name: Battery Level
+          - entity: binary_sensor.tesla_plugged_in
+            name: Plugged in
+          - entity: sensor.tesla_charge_limit_soc
+            name: SoC limit
+          - entity: sensor.tesla_charger_power
+            name: Power
+          - entity: sensor.tesla_time_to_full_charge
+            name: Time to charge
+          - entity: sensor.tesla_odometer
+            name: Odometer
+          - entity: binary_sensor.tesla_locked
+            name: Status
+          - entity: binary_sensor.tesla_is_climate_on
+            name: Climate On
+          - entity: binary_sensor.tesla_sentry_mode
+            name: Sentry mode
+          - entity: sensor.tesla_state
+            name: Status
+        state_color: true
+        title: Aurora
+      - type: entities
+        entities:
+          - sensor.oneplus_9_pro_next_alarm
+  - title: Temperature
+    path: temperatures
+    icon: hass:thermometer
+    theme: ''
+    badges: []
+    cards:
+      - type: history-graph
+        entities:
+          - entity: sensor.baderoom_temperature
+            name: Baderoom
+          - entity: sensor.stua_temperature
+            name: Stua
+          - entity: sensor.kontoret_temperature
+            name: Kontoret
+          - entity: sensor.soveroom_temperature
+            name: Søveroom
+          - entity: sensor.outdoor_temperature
+            name: Ute
+        refresh_interval: 0
+        title: 'Temperature '
+        hours_to_show: 168
+  - title: ISP
+    path: isp
+    icon: mdi:ethernet
+    badges: []
+    cards:
+      - type: history-graph
+        entities:
+          - sensor.speedtest_download
+          - sensor.speedtest_ping
+          - sensor.speedtest_upload
+        refresh_interval: 30
+        title: ISP Telenor
+        hours_to_show: 168
+  - title: Bus
+    path: bus
+    icon: mdi:bus
+    badges: []
+    cards:
+      - type: custom:entur-card
+        name: Rutetider
+        show_clock: true
+        show_next: true
+        show_human: true
+        show_extra_departures: true
+        entities:
+          - entity: sensor.atb_brian_smiths_gate_platform_75371
+            name: Brian Smiths Gate
+            destination: Bakkegata
+          - entity: sensor.atb_bakkegata_platform_74793
+            name: Bakkegata
+            destination: Brian Smiths Gate

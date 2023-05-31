@@ -1,0 +1,94 @@
+- id: '1635086008121'
+  name: Cozy lights
+  entities:
+    light.gulvlampe:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 255
+      hs_color:
+      - 38.095
+      - 49.412
+      rgb_color:
+      - 255
+      - 209
+      - 129
+      xy_color:
+      - 0.449
+      - 0.405
+      effect: None
+      mode: normal
+      dynamics: none
+      friendly_name: Gulvlampe
+      supported_features: 44
+      state: 'on'
+  icon: mdi:lightbulb
+  metadata: {}
+- id: '1637969586351'
+  name: Default light at home
+  entities: {}
+  icon: mdi:home
+- id: '1659411546639'
+  name: Movie
+  entities:
+    light.on_off_plug_1:
+      supported_color_modes: []
+      mode: normal
+      dynamics: none
+      friendly_name: Gulvlampe
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.gulvlampe:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Gulvlampe
+      supported_features: 44
+      color_mode: xy
+      brightness: 102
+      hs_color:
+      - 14.667
+      - 70.588
+      rgb_color:
+      - 255
+      - 119
+      - 75
+      xy_color:
+      - 0.592
+      - 0.343
+      effect: None
+      state: 'on'
+  icon: mdi:movie
+  metadata: {}
+- id: '1659411706336'
+  name: Turn off all lights
+  entities:
+    light.home:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      friendly_name: All lights
+      supported_features: 40
+      state: 'off'
+  icon: mdi:lightbulb-group-off
+  metadata:
+    light.all_light:
+      entity_only: true

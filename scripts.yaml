@@ -1,0 +1,52 @@
+androidtv_netflix:
+  alias: Netflix
+  sequence:
+  - service: media_player.turn_on
+    data: {}
+    target:
+      device_id: 763c5242df9b70014458578e29ac3789
+  - service: media_player.select_source
+    data:
+      source: Netflix
+    target:
+      device_id: 763c5242df9b70014458578e29ac3789
+  - service: scene.turn_on
+    target:
+      entity_id: scene.movie
+    metadata: {}
+  mode: single
+  icon: mdi:netflix
+androidtv_spotify:
+  alias: Play Spotify on TV
+  sequence:
+  - service: media_player.turn_on
+    data: {}
+    target:
+      device_id: 763c5242df9b70014458578e29ac3789
+  - service: media_player.select_source
+    data:
+      source: Spotify
+    target:
+      device_id: 763c5242df9b70014458578e29ac3789
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - service: media_player.media_play
+    data: {}
+    target:
+      device_id: 763c5242df9b70014458578e29ac3789
+  mode: single
+  icon: mdi:spotify
+spotify_play:
+  alias: Play Spotify
+  description: Play playlist in Spotify
+  sequence:
+  - alias: Spotify Play
+    service: media_player.play_media
+    data:
+      entity_id: media_player.spotify_geof
+      media_content_type: playlist
+      media_content_id: https://open.spotify.com/playlist/37i9dQZF1DX5D6YEapiD05?si=c90fb669f21c4d1c
+  mode: single

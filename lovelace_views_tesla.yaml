@@ -1,0 +1,90 @@
+title: Car
+views:
+  - title: Aurora
+    path: aurora
+    icon: mdi:car
+    cards:
+        - !include 'cards/tesla.yaml'
+        #- type: map
+        #  aspect_ratio: 16:9
+        #  default_zoom: 13
+        #  entities:
+        #    - device_tracker.aurora_location_tracker
+        - type: vertical-stack
+          cards:
+            - type: entities
+              title: Battery & Range
+              entities:
+                - entity: sensor.aurora_battery
+                  name: Battery
+                - entity: binary_sensor.aurora_charger
+                  name: Charger
+                - entity: sensor.aurora_charging_rate
+                  name: Charging Rate
+            - type: 'custom:bar-card'
+              width: 70%
+              entities:
+                - name: Battery
+                  entity: sensor.aurora_battery
+                - name: Range
+                  entity: sensor.aurora_range
+                  max: 200
+              positions:
+                icon: 'off'
+                indicator: inside
+                name: outside
+            - type: custom:mini-graph-card
+              name: Battery & Range
+              points_per_hour: 2
+              icon: 'mdi:battery'
+              entities:
+                - entity: sensor.aurora_battery
+                  name: Battery
+                - entity: sensor.aurora_range
+                  name: Range
+            - type: vertical-stack
+              cards:
+                - type: 'custom:simple-thermostat'
+                  entity: climate.aurora_hvac_climate_system
+                  name: Climate
+                  control:
+                    hvac:
+                        'heat_cool':
+                          name: "Heat/Cool"
+                    preset:
+                      'normal': 
+                        name: 'Normal'
+                      'defrost':
+                        name: 'Defrost'
+                - type: custom:mini-graph-card
+                  name: Temperature
+                  points_per_hour: 2
+                  icon: 'mdi:battery'
+                  entities:
+                    - entity: sensor.aurora_temperature_inside
+                      name: Inside
+                    - entity: sensor.aurora_temperature_outside
+                      name: Outside
+                  line_color: blue
+            - type: entities
+              title: Locks
+              entities:
+                - entity: lock.aurora_doors
+                  name: Doors
+                - entity: cover.aurora_charger_door
+                  name: Charger Door
+                - entity: cover.aurora_frunk
+                  name: Frunk
+                - entity: cover.aurora_trunk
+                  name: Trunk
+            - type: entities
+              title: Switches
+              entities:
+                - entity: switch.aurora_charger
+                  name: Charger
+                - entity: number.aurora_charge_limit
+                  name: Max Range
+                - entity: switch.aurora_sentry_mode
+                  name: Sentry Mode
+                - entity: switch.aurora_polling
+                  name: Data Polling

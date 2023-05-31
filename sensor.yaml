@@ -1,0 +1,145 @@
+## ----------------------- EN TUR
+## https://www.home-assistant.io/integrations/entur_public_transport/
+##
+## Brian Smith Gate: https://entur.no/nearby-stop-place-detail?id=NSR:StopPlace:43896
+## Bakkegata: https://entur.no/nearby-stop-place-detail?id=NSR:StopPlace:43577
+## Lovelace card: https://github.com/jonkristian/entur-card
+ - platform: entur_public_transport
+   name: Atb
+   expand_platforms: true
+   show_on_map: true
+   stop_ids:
+      - 'NSR:StopPlace:43896'
+      - 'NSR:StopPlace:43577'
+   line_whitelist:
+      - 'ATB:Line:2_22'
+
+  
+## -----------------------  NORDPOOL -----------------------------------------------------------
+## https://www.youtube.com/watch?v=8OnlJDwQfpM
+## https://github.com/custom-components/nordpool
+## https://www.creatingsmarthome.com/index.php/2022/09/17/home-assistant-nord-pool-spot-prices-and-how-to-automate-devices-for-cheapest-hours/
+ - platform: nordpool
+   VAT: True               # Should the prices include vat? Default True
+   currency: "NOK"         # What currency the api fetches the prices in / this is only need if you want a sensor in a non local currency
+   price_in_cents: false   # Option to show prices in cents (or the equivalent in local currency)
+   low_price_cutoff: 0.95  # Helper so you can set your "low" price /  low_price = hour_price < average * low_price_cutoff
+   region: "Tr.heim"       # Possible values: "DK1", "DK2", "FI", "LT", "LV", "Oslo", "Kr.sand", "Bergen", "Molde", "Tr.heim", "Tromsø", "SE1", "SE2", "SE3","SE4", "SYS", "EE"
+   precision: 3            # How many decimals to use in the display of the price
+   price_type: kWh         # What the price should be displayed in default / Possible values: MWh, kWh and Wh
+
+   # This option allows the usage of a template to add a tariff.
+   # now() always refers start of the hour of that price.
+   # this way we can calculate the correct costs add that to graphs etc.
+   # The price result of the additional_costs template expects this additional cost to be in kWh and not cents as a float
+   # default {{0.0|float}}
+   additional_costs: "{{0.0|float}}"
+
+## Sensor to find the cheapest price. See https://www.creatingsmarthome.com/index.php/2022/09/17/home-assistant-nord-pool-spot-prices-and-how-to-automate-devices-for-cheapest-hours/
+#  - platform: template
+#    sensors:
+#       cheapest_hours_energy_today:
+#         device_class: timestamp
+#         friendly_name: Cheapest sequential electricity hours today
+#         value_template: >
+#           {%- set numberOfSequentialHours = 3 -%}
+#           {%- set lastHour = 23 -%}
+#           {%- set firstHour = 0 -%}
+#           {%- if state_attr('sensor.nordpool_kwh_trheim_nok_3_095_025', 'tomorrow_valid') == false -%}
+#             {%- set ns = namespace(counter=0, list=[], cheapestHour=today_at("00:00") + timedelta( hours = (0)), cheapestPrice=999.00) -%}
+#             {%- for i in range(firstHour + numberOfSequentialHours, lastHour+1) -%}
+#               {%- set ns.counter = 0.0 -%}
+#               {%- for j in range(i-numberOfSequentialHours, i) -%}
+#                 {%- if j < 24 -%}
+#                   {%- set ns.counter = ns.counter + state_attr('sensor.nordpool_kwh_trheim_nok_3_095_025', 'today')[j] -%}
+#                 {%- else -%}
+#                   {%- set ns.counter = ns.counter + state_attr('sensor.nordpool_kwh_trheim_nok_3_095_025', 'tomorrow')[j-24] -%}
+#                 {%- endif -%}
+#               {%- endfor -%}
+#               {%- set ns.list = ns.list + [ns.counter] -%}
+#               {%- if ns.counter < ns.cheapestPrice -%}
+#                 {%- set ns.cheapestPrice = ns.counter -%}
+#                 {%- set ns.cheapestHour = today_at("00:00") + timedelta( hours = (24 + i - numberOfSequentialHours)) -%}
+#               {%- endif -%}
+#             {%- endfor -%}
+#             {{ ns.cheapestHour }}
+#             {%- set ns.cheapestPrice = ns.cheapestPrice / numberOfSequentialHours -%}
+#           {%- endif -%}
+ - platform: template
+   sensors:
+    cheapest_hours_energy_tomorrow:
+        device_class: timestamp
+        friendly_name: Cheapest sequential electricity hours tomorrow
+        value_template: >
+          {%- set numberOfSequentialHours = 3 -%}
+          {%- set lastHour = 23 -%}
+          {%- set firstHour = 0 -%}
+
+          {%- if state_attr('sensor.nordpool_kwh_trheim_nok_3_095_025', 'tomorrow_valid') == true -%}
+            {%- set ns = namespace(counter=0, list=[], cheapestHour=today_at("00:00") + timedelta( hours = (24)), cheapestPrice=999.00) -%}
+            {%- for i in range(firstHour + numberOfSequentialHours, lastHour+1) -%}
+              {%- set ns.counter = 0.0 -%}
+              {%- for j in range(i-numberOfSequentialHours, i) -%}
+                {%- set ns.counter = ns.counter + state_attr('sensor.nordpool_kwh_trheim_nok_3_095_025', 'tomorrow')[j] -%}
+              {%- endfor -%}
+              {%- set ns.list = ns.list + [ns.counter] -%}
+              {%- if ns.counter < ns.cheapestPrice -%}
+                {%- set ns.cheapestPrice = ns.counter -%}
+                {%- set ns.cheapestHour = today_at("00:00") + timedelta( hours = (24 + i - numberOfSequentialHours)) -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {{ ns.cheapestHour }}
+            {%- set ns.cheapestPrice = ns.cheapestPrice / numberOfSequentialHours -%}
+          {%- endif -%}
+
+## ----------------------- TESLAMATE
+ - platform: template
+   sensors:
+    tesla_est_battery_range_mi:
+      friendly_name: Estimated Range (mi)
+      unit_of_measurement: mi
+      icon_template: mdi:gauge
+      value_template: >
+       {{ (states('sensor.tesla_est_battery_range_km') | float / 1.609344) | round(2) }}
+
+    tesla_rated_battery_range_mi:
+      friendly_name: Rated Range (mi)
+      unit_of_measurement: mi
+      icon_template: mdi:gauge
+      value_template: >
+       {{ (states('sensor.tesla_rated_battery_range_km') | float / 1.609344) | round(2) }}
+
+    tesla_ideal_battery_range_mi:
+      friendly_name: Ideal Range (mi)
+      unit_of_measurement: mi
+      icon_template: mdi:gauge
+      value_template: >
+       {{ (states('sensor.tesla_ideal_battery_range_km') | float / 1.609344) | round(2) }}
+
+    tesla_odometer_mi:
+      friendly_name: Odometer (mi)
+      unit_of_measurement: mi
+      icon_template: mdi:counter
+      value_template: >
+       {{ (states('sensor.tesla_odometer') | float / 1.609344) | round(2) }}
+
+    tesla_speed_mph:
+      friendly_name: Speed (MPH)
+      unit_of_measurement: mph
+      icon_template: mdi:speedometer
+      value_template: >
+       {{ (states('sensor.tesla_speed') | float / 1.609344) | round(2) }}
+
+    tesla_elevation_ft:
+      friendly_name: Elevation (ft)
+      unit_of_measurement: ft
+      icon_template: mdi:image-filter-hdr
+      value_template: >
+       {{ (states('sensor.tesla_elevation') | float * 3.2808 ) | round(2) }}
+## ----------------------- TESLAMATE
+
+## ----------------------- HASSALARM
+ - platform: time_date
+   display_options:
+     - 'date_time'
+## ----------------------- HASSALARM

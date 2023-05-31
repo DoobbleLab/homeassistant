@@ -1,0 +1,11 @@
+.storage/*
+.cloud/*
+backups/*
+image/*
+home-assistant.log*
+home-assistant_v2*
+secrets.yaml
+*.swp
+*.secret
+*.DS_Store
+.git_old/*

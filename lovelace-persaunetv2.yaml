@@ -1,0 +1,223 @@
+title: Home
+views:
+  - title: Home
+    path: home
+    icon: hass:home
+    cards:
+      - type: vertical-stack
+        cards:
+        - type: custom:mushroom-chips-card
+          chips:
+            #- type: menu
+            - type: entity
+              entity: person.geoffrey
+              icon: mdi:face-man
+            #- type: entity
+            #  entity: sensor.tesla_charge_limit_soc
+            - type: entity
+              entity: sensor.tesla_battery_level
+            - type: entity
+              entity: binary_sensor.tesla_plugged_in
+            - type: light
+              entity: light.home
+            - type: entity
+              entity: script.androidtv_netflix
+              tap_action: 
+                action: call-service
+                service: script.androidtv_netflix
+            - type: action
+              icon: mdi:bed-clock
+              tap_action:
+                action: call-service
+                service: automation.trigger
+                target:
+                  entity_id: automation.bedtime
+                service_data: {}
+      - type: horizontal-stack
+        cards:
+        - type: glance
+          entities:
+            - entity: sensor.baderoom_temperature
+              name: Baderoom
+            - entity: sensor.stua_temperature
+              name: Stua
+            - entity: sensor.kontoret_temperature
+              name: Kontoret
+            - entity: sensor.soveroom_temperature
+              name: Søveroom
+            - entity: sensor.outdoor_temperature
+              name: Ute
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.stua
+          - type: custom:mushroom-light-card
+            entity: light.stua_gulvlampe
+            name: Gulvlampe
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.stua_roof_lights
+            name: Stua roof lights
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+          - type: custom:mushroom-light-card
+            entity: light.office
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+          - type: custom:mushroom-light-card
+            entity: light.entrance
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+          - type: custom:mushroom-light-card
+            entity: light.soveroom
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+      - type: custom:mushroom-vacuum-card
+        entity: vacuum.deebot
+      - type: history-graph
+        entities:
+          - entity: sensor.adguard_home_average_processing_speed
+          - entity: sensor.adguard_home_average_processing_speed_2
+        hours_to_show: 24
+        title: AdGuard Average processing speed
+      - type: weather-forecast
+        entity: weather.forecast_home
+        show_forecast: true
+        secondary_info_attribute: wind_speed
+      - type: entities
+        entities:
+          - sensor.oneplus_9_pro_next_alarm
+  - title: Strøm
+    path: strom
+    icon: mdi:lightning-bolt
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: sensor.cheapest_hours_energy_tomorrow
+            format: time
+      - type: entities
+        entities:
+          - input_datetime.start_cheapest_hours_time
+          # - entity: sensor.cheapest_hours_energy_tomorrow
+          #   format: time
+      - type: custom:apexcharts-card
+        graph_span: 24h
+        header:
+          title: Energy price today (nok/kWh)
+          show: true
+        span:
+          start: day
+        now:
+          show: true
+          label: Now
+        series:
+          - entity: sensor.nordpool_kwh_trheim_nok_3_095_025
+            type: column
+            data_generator: |
+              return entity.attributes.raw_today.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
+              });
+      - type: custom:apexcharts-card
+        graph_span: 1d
+        header:
+          title: Energy price tomorrow (nok/kWh)
+          show: true
+        span:
+          start: day
+          offset: +1d
+        series:
+          - entity: sensor.nordpool_kwh_trheim_nok_3_095_025
+            type: column
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
+              });
+  - title: Monitor
+    path: monitor
+    icon: mdi:monitor
+    theme: ''
+    badges: []
+    cards:
+      - type: history-graph
+        entities:
+          - entity: sensor.baderoom_temperature
+            name: Baderoom
+          - entity: sensor.stua_temperature
+            name: Stua
+          - entity: sensor.kontoret_temperature
+            name: Kontoret
+          - entity: sensor.soveroom_temperature
+            name: Søveroom
+          - entity: sensor.outdoor_temperature
+            name: Ute
+        refresh_interval: 0
+        title: 'Temperature '
+        hours_to_show: 168
+      - type: history-graph
+        entities:
+          - sensor.speedtest_download
+          - sensor.speedtest_ping
+          - sensor.speedtest_upload
+        refresh_interval: 30
+        title: ISP Telenor
+        hours_to_show: 168
+  - title: Bus
+    path: bus
+    icon: mdi:bus
+    badges: []
+    cards:
+      - type: custom:entur-card
+        name: Rutetider
+        show_clock: true
+        show_next: true
+        show_human: true
+        show_extra_departures: true
+        entities:
+          - entity: sensor.atb_brian_smiths_gate_platform_75371
+            name: Brian Smiths Gate
+            destination: Bakkegata
+          - entity: sensor.atb_bakkegata_platform_74793
+            name: Bakkegata
+            destination: Brian Smiths Gate
+  - title: Tesla
+    path: tesla
+    icon: mdi:car
+    badges: []
+    cards:
+      - !include 'cards/tesla.yaml'
+      - type: glance
+        entities:
+          - entity: sensor.tesla_battery_level
+            name: Battery Level
+          - entity: binary_sensor.tesla_plugged_in
+            name: Plugged in
+          - entity: sensor.tesla_charge_limit_soc
+            name: SoC limit
+          - entity: sensor.tesla_charger_power
+            name: Power
+          - entity: sensor.tesla_time_to_full_charge
+            name: Time to charge
+          - entity: sensor.tesla_odometer
+            name: Odometer
+          - entity: binary_sensor.tesla_locked
+            name: Status
+          - entity: binary_sensor.tesla_is_climate_on
+            name: Climate On
+          - entity: binary_sensor.tesla_sentry_mode
+            name: Sentry mode
+          - entity: sensor.tesla_state
+            name: Status
+        state_color: true
+        title: Aurora
+      - type: entities
+        entities:
+          - sensor.oneplus_9_pro_next_alarm

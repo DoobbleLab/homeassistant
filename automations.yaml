@@ -1,0 +1,361 @@
+- id: 8c4015e1d5604c3dbe81867cb295853b
+  alias: 0 - Update Tesla location as MQTT location updates
+  trigger:
+  - platform: mqtt
+    topic: teslamate/cars/1/latitude
+  - platform: mqtt
+    topic: teslamate/cars/1/longitude
+  action:
+  - service: device_tracker.see
+    data_template:
+      dev_id: tesla_location
+      gps:
+      - '{{ states.sensor.tesla_latitude.state }}'
+      - '{{ states.sensor.tesla_longitude.state }}'
+  initial_state: true
+- id: '1627423106914'
+  alias: 3 - It is time to go to sleep !
+  description: Going to sleep
+  trigger: []
+  condition:
+  - condition: state
+    entity_id: person.geoffrey
+    state: home
+  action:
+  - service: light.turn_off
+    data:
+      transition: 0
+    target:
+      entity_id: light.home
+  - service: light.turn_on
+    data:
+      transition: 5
+      brightness_pct: 80
+      xy_color:
+      - 0.653
+      - 0.34
+    target:
+      entity_id:
+      - light.bordlampe
+      - light.gulvlampe
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data:
+      transition: 300
+    target:
+      entity_id:
+      - light.bordlampe
+      - light.gulvlampe
+  mode: restart
+- id: wake_up
+  alias: 2 - Wake up
+  description: Turn on the light when the alarm rings
+  trigger:
+  - platform: template
+    value_template: '{{ states(''sensor.date_time'') == as_timestamp(states.sensor.oneplus_9_pro_next_alarm.state)|
+      timestamp_custom(''%Y-%m-%d, %H:%M'') }}'
+    enabled: true
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.geoffrey
+      state: home
+    - condition: state
+      entity_id: input_boolean.execute_wake_up_script
+      state: 'on'
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.execute_wake_up_script
+  - service: scene.turn_on
+    data:
+      transition: 99
+    target:
+      entity_id: scene.wake_up_start
+  - service: scene.turn_on
+    data:
+      transition: 10
+    target:
+      entity_id: scene.wake_up_middle
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: scene.turn_on
+    data:
+      transition: 20
+    target:
+      entity_id: scene.wake_up_end
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.execute_wake_up_script
+  mode: single
+- id: leaving
+  alias: 1 - Leaving
+  description: Turn off everything when Geoffrey leaves
+  trigger:
+  - platform: state
+    entity_id: person.geoffrey
+    from: home
+    to: not_home
+  condition: []
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.home
+    data:
+      transition: 2
+  - service: notify.mobile_app_oneplus_9_pro
+    data:
+      title: Leaving
+      message: '{{ state_attr(''person.geoffrey'', ''friendly_name'') }} has left'
+      data:
+        color: red
+  mode: single
+- id: '1637969652732'
+  alias: 1 - Turn on the lights when I arrive home and sun is set
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.entrance_contact
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ state_attr(''sun.sun'', ''elevation'') < 5 }}'
+  action:
+  - scene: scene.office_detente
+    enabled: false
+  - service: scene.turn_on
+    target:
+      entity_id: scene.entrance_detente
+    metadata: {}
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.stua
+        state: 'off'
+        enabled: true
+      sequence:
+      - scene: scene.soveroom_detente
+        enabled: true
+    default: []
+    enabled: false
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    target:
+      area_id: entrance
+    data:
+      transition: 30
+  mode: single
+- id: '1659414206314'
+  alias: 1 - Send a notification if lights are on when I'm away
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  condition:
+  - condition: state
+    entity_id: person.geoffrey
+    state: not_home
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  - condition: state
+    entity_id: zone.home
+    state: 'on'
+  action:
+  - service: notify.mobile_app_oneplus_9_pro
+    data:
+      title: Lights are still on !
+      message: Some lights are still on! Have a look
+      data:
+        color: red
+  mode: single
+- id: '1663102486001'
+  alias: 4 - Tesla charging limit > 80% for more than 24 hours
+  description: Send a notificaiton to not forget to lower down the charge limit.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.tesla_charge_limit_soc
+    for:
+      hours: 18
+      minutes: 0
+      seconds: 0
+    above: 80
+  condition: []
+  action:
+  - device_id: a7e0d219f486d6f55c799e9b337adf21
+    domain: mobile_app
+    type: notify
+    title: Aurora Charge limit > 80%
+    message: The charging limit is still above 80% ! Be careful !
+    enabled: false
+  - condition: numeric_state
+    entity_id: sensor.tesla_charge_limit_soc
+    above: 80
+    enabled: false
+  - repeat:
+      until:
+      - condition: numeric_state
+        entity_id: sensor.tesla_charge_limit_soc
+        below: 80
+      sequence:
+      - device_id: a7e0d219f486d6f55c799e9b337adf21
+        domain: mobile_app
+        type: notify
+        message: The charging limit is still above 80% ! Be careful !
+        title: Aurora Charge limit > 80%
+      - delay:
+          hours: 0
+          minutes: 45
+          seconds: 0
+          milliseconds: 0
+  mode: single
+- id: '1669676054856'
+  alias: 2 - Wake up - candle
+  description: Turn on the light when the alarm rings
+  trigger:
+  - platform: template
+    value_template: '{{ states(''sensor.date_time'') == as_timestamp(states.sensor.oneplus_9_pro_next_alarm.state)|
+      timestamp_custom(''%Y-%m-%d, %H:%M'') }}'
+    enabled: true
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.geoffrey
+      state: home
+    - condition: state
+      entity_id: input_boolean.execute_wake_up_script
+      state: 'on'
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.execute_wake_up_script
+  - service: light.turn_on
+    data:
+      transition: 60
+      brightness_pct: 80
+    target:
+      entity_id:
+      - light.gulvlampe
+  - service: light.turn_on
+    data:
+      transition: 60
+      effect: candle
+      brightness_pct: 20
+    target:
+      entity_id:
+      - light.bordlampe
+  - delay:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      transition: 60
+      effect: candle
+      brightness_pct: 80
+    target:
+      entity_id:
+      - light.bordlampe
+  - delay:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.execute_wake_up_script
+  - service: light.turn_off
+    data:
+      transition: 10
+    target:
+      entity_id:
+      - light.bordlampe
+      - light.gulvlampe
+  mode: restart
+- id: '1663398489354'
+  alias: 5 - Update cheapest hours time
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:58:00'
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.cheapest_hours_energy_tomorrow
+      state: unknown
+  action:
+  - service: input_datetime.set_datetime
+    data:
+      time: '{{ as_timestamp(states(''sensor.cheapest_hours_energy_tomorrow'')) |
+        timestamp_custom(''%H:%M'') }}'
+    target:
+      entity_id: input_datetime.start_cheapest_hours_time
+  mode: single
+- id: '1674866491315'
+  alias: 5 - Start charging and Notify OnePlus Pro
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.start_cheapest_hours_time
+  condition: []
+  action:
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.aurora_charger
+    enabled: true
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: notify.mobile_app_oneplus_9_pro
+    data:
+      message: Time to charge
+      title: Cheap hours !
+      data:
+        actions:
+        - action: URI
+          title: Open Lovelace
+          uri: /lovelace-persaunetv2/tesla
+  mode: single
+- id: '1680645735085'
+  alias: Low battery level detection & notification for all battery sensors
+  description: ''
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      exclude:
+        entity_id: []
+        device_id:
+        - a7e0d219f486d6f55c799e9b337adf21
+        - b47ddc67a076d8acfd339946d791bb3a
+      actions:
+      - service: notify.mobile_app_oneplus_9_pro
+        data:
+          title: Sensors battery
+          message: 'Low battery warning for: {{sensors}}'
+      time: '21:00:00'
+      threshold: 25
