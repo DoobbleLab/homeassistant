@@ -1,0 +1,52 @@
+version: '3'
+services:
+  ha-app:
+    container_name: ha-app
+    image: "homeassistant/home-assistant:stable"
+    restart: unless-stopped
+    volumes:
+      - .:/config
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - automation_homeassistant
+    ports:
+      - "8123:8123"
+    depends_on:
+      - ha-db
+
+    labels:
+      - flame.type=application
+      - flame.name=Home Asssitant
+      - flame.url=${SITE_URL}
+      - flame.category=Smart home
+      - flame.icon=home-assistant
+
+  ha-db:
+    #image: mariadb/server:10.3
+    image: mariadb:latest
+    container_name: ha-db
+    restart: unless-stopped
+    networks:
+      - automation_homeassistant
+    secrets:
+      - mysql_root_password
+      - mysql_ha_password
+    environment:
+      MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
+      MYSQL_PASSWORD: /run/secrets/mysql_ha_password
+      MYSQL_DATABASE: ha_db
+      MYSQL_USER: homeassistant
+    user: "${LOCAL_USER}:${LOCAL_USER}"
+    volumes:
+      - ${DB_VOL}:/var/lib/mysql
+  
+secrets:
+  mysql_root_password:
+      file: ./secrets/mysql_root.secret
+  mysql_ha_password:
+      file: ./secrets/mysql_ha.secret
+
+networks:
+  automation_homeassistant:
+    driver: bridge
+    name: automation_homeassistant

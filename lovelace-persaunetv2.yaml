@@ -82,6 +82,42 @@ views:
             show_color_control: true
       - type: custom:mushroom-vacuum-card
         entity: vacuum.deebot
+      - type: custom:apexcharts-card
+        graph_span: 1h
+        header:
+          show: true
+          title: AdGuard processing times
+          show_states: true
+          colorize_states: true
+        series:
+          - entity: sensor.ad1gwernerme_average_processing_speed
+            name: ad1 processing speed
+          - entity: sensor.ad2gwernerme_average_processing_speed
+            name: ad2 processing speed
+        yaxis:
+          - min: 0
+            max: 600
+            decimals: 0
+            apex_config:
+             tickAmount: 6
+      - type: custom:apexcharts-card
+        graph_span: 1h
+        header:
+          show: true
+          title: AdGuard Queries Blocked Ratio
+          show_states: true
+          colorize_states: true
+        series:
+          - entity: sensor.ad1gwernerme_dns_queries_blocked_ratio
+            name: ad1 blocked ratio
+          - entity: sensor.ad2gwernerme_dns_queries_blocked_ratio
+            name: ad1 blocked ratio
+        yaxis:
+          - min: 0
+            max: 30
+            decimals: 0
+            apex_config:
+             tickAmount: 6
       - type: history-graph
         entities:
           - entity: sensor.adguard_home_average_processing_speed

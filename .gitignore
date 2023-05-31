@@ -4,10 +4,11 @@ backups/*
 image/*
 home-assistant.log*
 home-assistant_v2*
-secrets.yaml
 *.swp
 *.secret
+secrets.yaml
 *.DS_Store
 .git_old/*
 .HA_VERSION
+.env
 google_assistant_SERVICE_ACCOUNT*
