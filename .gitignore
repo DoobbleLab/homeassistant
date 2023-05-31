@@ -9,3 +9,5 @@ secrets.yaml
 *.secret
 *.DS_Store
 .git_old/*
+.HA_VERSION
+google_assistant_SERVICE_ACCOUNT.json
