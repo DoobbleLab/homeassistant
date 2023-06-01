@@ -118,12 +118,6 @@ views:
             decimals: 0
             apex_config:
              tickAmount: 6
-      - type: history-graph
-        entities:
-          - entity: sensor.adguard_home_average_processing_speed
-          - entity: sensor.adguard_home_average_processing_speed_2
-        hours_to_show: 24
-        title: AdGuard Average processing speed
       - type: weather-forecast
         entity: weather.forecast_home
         show_forecast: true
