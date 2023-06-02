@@ -50,3 +50,8 @@ networks:
   automation_homeassistant:
     driver: bridge
     name: automation_homeassistant
+    ipam:
+      driver: default
+      config:
+          - subnet: "172.19.0.0/16"
+            gateway: "172.19.0.1"

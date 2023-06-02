@@ -83,7 +83,7 @@ views:
       - type: custom:mushroom-vacuum-card
         entity: vacuum.deebot
       - type: custom:apexcharts-card
-        graph_span: 1h
+        graph_span: 1d
         header:
           show: true
           title: AdGuard processing times
@@ -101,7 +101,7 @@ views:
             apex_config:
              tickAmount: 6
       - type: custom:apexcharts-card
-        graph_span: 1h
+        graph_span: 1d
         header:
           show: true
           title: AdGuard Queries Blocked Ratio
