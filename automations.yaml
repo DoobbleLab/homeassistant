@@ -359,3 +359,38 @@
           message: 'Low battery warning for: {{sensors}}'
       time: '21:00:00'
       threshold: 25
+- id: '1685745423971'
+  alias: Notify on Backup Failure
+  description: Based on https://jcwillox.github.io/hass-auto-backup/examples/
+  trigger:
+  - platform: event
+    event_type: auto_backup.backup_failed
+  condition: []
+  action:
+  - service: notify.mobile_app_oneplus_9_pro
+    data:
+      title: Backup failed.
+      message: 'Name: {{ trigger.event.data.name }}
+
+        Error: {{ trigger.event.data.error }}'
+  mode: single
+
+- id: '1685746119081'
+  alias: "6 - AutoBackup: Weekly MONDAY + THURSDAY FULL Backup"
+  description: Based on https://jcwillox.github.io/hass-auto-backup/advanced-examples/
+  trigger:
+    platform: time
+    at: "04:00:00"
+  condition:
+    condition: time
+    weekday:
+      - mon
+      - wed
+      - sat
+  action:
+    service: auto_backup.backup_full
+    data:
+      name: "WeeklyBackup: {{ now().strftime('%A, %B %-d, %Y') }}"
+      # store backup for a month
+      # i.e. backup each week and store for 4 weeks
+      keep_days: 28

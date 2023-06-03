@@ -40,7 +40,6 @@ http:
     - 10.0.0.0/16
     - 192.168.0.0/16
 
-
 ## ----------------------- DASHBOARDS
 ## See https://github.com/thomasloven/hass-lovelace_gen
 lovelace_gen:
@@ -161,3 +160,6 @@ input_datetime:
     name: Next start of cheapest hours
     has_time: true
     has_date: false
+
+
+ ## TO DO: https://smarthomescene.com/guides/dynamically-explore-your-database-with-the-history-explorer-card-in-home-assistant/
