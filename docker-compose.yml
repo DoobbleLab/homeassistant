@@ -2,7 +2,7 @@ version: '3'
 services:
   ha-app:
     container_name: ha-app
-    image: "homeassistant/home-assistant:stable"
+    image: "homeassistant/home-assistant:latest"
     restart: unless-stopped
     volumes:
       - .:/config

@@ -162,4 +162,6 @@ input_datetime:
     has_date: false
 
 
- ## TO DO: https://smarthomescene.com/guides/dynamically-explore-your-database-with-the-history-explorer-card-in-home-assistant/
+ ## TO DO: 
+ ## https://smarthomescene.com/guides/dynamically-explore-your-database-with-the-history-explorer-card-in-home-assistant/
+ ## https://smarthomescene.com/guides/setting-up-emqx-mqtt-broker-in-home-assistant/

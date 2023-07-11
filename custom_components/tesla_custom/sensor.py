@@ -509,7 +509,7 @@ class TeslaEnergyBatteryRemaining(TeslaEnergyEntity, SensorEntity):
         """Initialize battery remaining entity."""
         super().__init__(hass, energysite, coordinator)
         self.type = "battery remaining"
-        self._attr_device_class = SensorDeviceClass.BATTERY
+        self._attr_device_class = SensorDeviceClass.ENERGY_STORAGE
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_native_unit_of_measurement = ENERGY_WATT_HOUR
 
@@ -706,6 +706,9 @@ class TeslaCarArrivalTime(TeslaCarEntity, SensorEntity):
             "Energy at arrival": self._car.active_route_energy_at_arrival,
             "Minutes traffic delay": minutes,
             "Destination": self._car.active_route_destination,
+            "Minutes to arrival": None
+            if self._car.active_route_minutes_to_arrival is None
+            else round(float(self._car.active_route_minutes_to_arrival), 2),
         }
 
 
@@ -751,10 +754,13 @@ class TeslaCarDataUpdateTime(TeslaCarEntity, SensorEntity):
         self._attr_icon = "mdi:timer"
 
     @property
-    def native_value(self) -> float:
+    def native_value(self) -> datetime:
         """Return the last data update time."""
         last_time = self._coordinator.controller.get_last_update_time(vin=self._car.vin)
 
         utc_tz = dt.get_time_zone("UTC")
-        date_obj = datetime.fromtimestamp(last_time, utc_tz)
+        if not isinstance(last_time, datetime):
+            date_obj = datetime.fromtimestamp(last_time, utc_tz)
+        else:
+            date_obj = last_time.replace(tzinfo=utc_tz)
         return date_obj
