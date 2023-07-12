@@ -319,7 +319,24 @@
   trigger:
   - platform: time
     at: input_datetime.start_cheapest_hours_time
-  condition: []
+    enabled: true
+  condition:
+  - condition: state
+    entity_id: switch.aurora_charger
+    state: 'off'
+    enabled: false
+  - condition: numeric_state
+    entity_id: sensor.tesla_charger_power
+    below: 1
+    enabled: false
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: sensor.tesla_scheduled_charging_start_time
+      state: unknown
+    - condition: numeric_state
+      entity_id: sensor.tesla_charger_power
+      below: 1
   action:
   - service: switch.toggle
     data: {}
@@ -374,23 +391,20 @@
 
         Error: {{ trigger.event.data.error }}'
   mode: single
-
 - id: '1685746119081'
-  alias: "6 - AutoBackup: Weekly MONDAY + THURSDAY FULL Backup"
+  alias: '6 - AutoBackup: Weekly MONDAY + THURSDAY FULL Backup'
   description: Based on https://jcwillox.github.io/hass-auto-backup/advanced-examples/
   trigger:
     platform: time
-    at: "04:00:00"
+    at: 04:00:00
   condition:
     condition: time
     weekday:
-      - mon
-      - wed
-      - sat
+    - mon
+    - wed
+    - sat
   action:
     service: auto_backup.backup_full
     data:
-      name: "WeeklyBackup: {{ now().strftime('%A, %B %-d, %Y') }}"
-      # store backup for a month
-      # i.e. backup each week and store for 4 weeks
+      name: 'WeeklyBackup: {{ now().strftime(''%A, %B %-d, %Y'') }}'
       keep_days: 28
