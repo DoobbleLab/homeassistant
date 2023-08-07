@@ -321,14 +321,6 @@
     at: input_datetime.start_cheapest_hours_time
     enabled: true
   condition:
-  - condition: state
-    entity_id: switch.aurora_charger
-    state: 'off'
-    enabled: false
-  - condition: numeric_state
-    entity_id: sensor.tesla_charger_power
-    below: 1
-    enabled: false
   - condition: and
     conditions:
     - condition: state
@@ -408,3 +400,16 @@
     data:
       name: 'WeeklyBackup: {{ now().strftime(''%A, %B %-d, %Y'') }}'
       keep_days: 28
+- id: '1689201260185'
+  alias: 5 - Stop charge at home if peak hours
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.aurora_charger_power
+    above: 0
+  condition:
+  - condition: state
+    entity_id: sensor.tesla_geofence
+    state: Home
+  action: []
+  mode: single
