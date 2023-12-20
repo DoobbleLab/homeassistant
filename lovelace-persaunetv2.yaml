@@ -9,15 +9,17 @@ views:
         - type: custom:mushroom-chips-card
           chips:
             #- type: menu
-            - type: entity
-              entity: person.geoffrey
-              icon: mdi:face-man
             #- type: entity
             #  entity: sensor.tesla_charge_limit_soc
             - type: entity
-              entity: sensor.tesla_battery_level
+              entity: person.geoffrey
+              icon: mdi:face-man
             - type: entity
-              entity: binary_sensor.tesla_plugged_in
+              entity: sensor.nordpool_kwh_trheim_nok_3_095_025
+            - type: entity
+              entity: sensor.aurora_battery
+            - type: entity
+              entity: binary_sensor.aurora_charger
             - type: light
               entity: light.home
             - type: entity
@@ -48,9 +50,14 @@ views:
             - entity: sensor.outdoor_temperature
               name: Ute
       - type: horizontal-stack
-        cards:
+        cards:            
           - type: custom:mushroom-light-card
             entity: light.stua
+            use_light_color: true
+            show_brightness_control: false
+          - type: custom:mushroom-light-card
+            entity: light.stua_plantlampe
+            name: Plante
           - type: custom:mushroom-light-card
             entity: light.stua_gulvlampe
             name: Gulvlampe
@@ -63,61 +70,76 @@ views:
             show_brightness_control: true
             show_color_temp_control: true
             show_color_control: true
+            fill_container: true
+            layout: horizontal
           - type: custom:mushroom-light-card
             entity: light.office
             use_light_color: true
             show_brightness_control: true
             show_color_temp_control: true
             show_color_control: true
-          - type: custom:mushroom-light-card
-            entity: light.entrance
-            use_light_color: true
-            show_brightness_control: true
-            show_color_temp_control: true
+            fill_container: true
+            layout: horizontal
           - type: custom:mushroom-light-card
             entity: light.soveroom
             use_light_color: true
             show_brightness_control: true
             show_color_temp_control: true
             show_color_control: true
+            fill_container: true
+            layout: horizontal
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.entrance
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            fill_container: true
+          - type: custom:mushroom-light-card
+            entity: light.baderoom
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            fill_container: true
       - type: custom:mushroom-vacuum-card
         entity: vacuum.deebot
-      - type: custom:apexcharts-card
-        graph_span: 1d
-        header:
-          show: true
-          title: AdGuard processing times
-          show_states: true
-          colorize_states: true
-        series:
-          - entity: sensor.ad1gwernerme_average_processing_speed
-            name: ad1 processing speed
-          - entity: sensor.ad2gwernerme_average_processing_speed
-            name: ad2 processing speed
-        yaxis:
-          - min: 0
-            max: 600
-            decimals: 0
-            apex_config:
-             tickAmount: 6
-      - type: custom:apexcharts-card
-        graph_span: 1d
-        header:
-          show: true
-          title: AdGuard Queries Blocked Ratio
-          show_states: true
-          colorize_states: true
-        series:
-          - entity: sensor.ad1gwernerme_dns_queries_blocked_ratio
-            name: ad1 blocked ratio
-          - entity: sensor.ad2gwernerme_dns_queries_blocked_ratio
-            name: ad1 blocked ratio
-        yaxis:
-          - min: 0
-            max: 30
-            decimals: 0
-            apex_config:
-             tickAmount: 6
+      # - type: custom:apexcharts-card
+      #   graph_span: 1d
+      #   header:
+      #     show: true
+      #     title: AdGuard processing times
+      #     show_states: true
+      #     colorize_states: true
+      #   series:
+      #     - entity: sensor.ad1gwernerme_average_processing_speed
+      #       name: ad1 processing speed
+      #     - entity: sensor.ad2gwernerme_average_processing_speed
+      #       name: ad2 processing speed
+      #   yaxis:
+      #     - min: 0
+      #       max: 600
+      #       decimals: 0
+      #       apex_config:
+      #        tickAmount: 6
+      # - type: custom:apexcharts-card
+      #   graph_span: 1d
+      #   header:
+      #     show: true
+      #     title: AdGuard Queries Blocked Ratio
+      #     show_states: true
+      #     colorize_states: true
+      #   series:
+      #     - entity: sensor.ad1gwernerme_dns_queries_blocked_ratio
+      #       name: ad1 blocked ratio
+      #     - entity: sensor.ad2gwernerme_dns_queries_blocked_ratio
+      #       name: ad1 blocked ratio
+      #   yaxis:
+      #     - min: 0
+      #       max: 30
+      #       decimals: 0
+      #       apex_config:
+      #        tickAmount: 6
       - type: weather-forecast
         entity: weather.forecast_home
         show_forecast: true
@@ -226,25 +248,25 @@ views:
       - !include 'cards/tesla.yaml'
       - type: glance
         entities:
-          - entity: sensor.tesla_battery_level
+          - entity: sensor.aurora_battery
             name: Battery Level
-          - entity: binary_sensor.tesla_plugged_in
+          - entity: binary_sensor.aurora_charger
             name: Plugged in
-          - entity: sensor.tesla_charge_limit_soc
+          - entity: number.aurora_charge_limit
             name: SoC limit
-          - entity: sensor.tesla_charger_power
+          - entity: sensor.aurora_charger_power
             name: Power
-          - entity: sensor.tesla_time_to_full_charge
+          - entity: sensor.aurora_time_charge_complete
             name: Time to charge
-          - entity: sensor.tesla_odometer
+          - entity: sensor.aurora_odometer
             name: Odometer
-          - entity: binary_sensor.tesla_locked
+          - entity: lock.aurora_doors
             name: Status
-          - entity: binary_sensor.tesla_is_climate_on
+          - entity: climate.aurora_hvac_climate_system
             name: Climate On
-          - entity: binary_sensor.tesla_sentry_mode
+          - entity: switch.aurora_sentry_mode
             name: Sentry mode
-          - entity: sensor.tesla_state
+          - entity: binary_sensor.aurora_online
             name: Status
         state_color: true
         title: Aurora

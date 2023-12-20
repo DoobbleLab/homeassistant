@@ -1,0 +1,40 @@
+title: Home
+views:
+  - title: Strøm
+    path: strom
+    icon: mdi:lightning-bolt
+    badges: []
+    cards:
+      - type: custom:apexcharts-card
+        graph_span: 24h
+        header:
+          title: Energy price today (nok/kWh)
+          show: true
+        span:
+          start: day
+        now:
+          show: true
+          label: Now
+        series:
+          - entity: sensor.nordpool_kwh_trheim_nok_3_095_025
+            type: column
+            data_generator: |
+              return entity.attributes.raw_today.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
+              });
+      - type: custom:apexcharts-card
+        graph_span: 1d
+        header:
+          title: Energy price tomorrow (nok/kWh)
+          show: true
+        span:
+          start: day
+          offset: +1d
+        series:
+          - entity: sensor.nordpool_kwh_trheim_nok_3_095_025
+            type: column
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
+              });
+

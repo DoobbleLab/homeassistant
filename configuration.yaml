@@ -100,6 +100,11 @@ lovelace:
       title: Persaunet v2
       show_in_sidebar: true
       filename: lovelace-persaunetv2.yaml
+    lovelace-juliana:
+      mode: yaml
+      title: Juliana
+      show_in_sidebar: true
+      filename: lovelace-juliana.yaml
 
 ## ----------------------- TESLAMATE
 proximity:
