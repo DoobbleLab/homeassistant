@@ -15,10 +15,9 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    UnitOfLength,
     ATTR_ENTITY_ID,
     CONF_ID,
-    DEVICE_CLASS_TIMESTAMP,
-    LENGTH_KILOMETERS,
 )
 from homeassistant.const import ATTR_ATTRIBUTION, CONF_ID
 from homeassistant.core import HomeAssistant
@@ -101,6 +100,9 @@ async def async_setup_entry(
         "set_active_gear", ENTITY_SERVICE_SCHEMA, coordinator.set_active_gear
     )
 
+    platform.async_register_entity_service(
+        "add_body_composition", BODY_COMPOSITION_SERVICE_SCHEMA, coordinator.add_body_composition
+    )
 
 ENTITY_SERVICE_SCHEMA = vol.Schema(
     {
@@ -110,6 +112,24 @@ ENTITY_SERVICE_SCHEMA = vol.Schema(
     }
 )
 
+BODY_COMPOSITION_SERVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_ENTITY_ID): str,
+        vol.Optional("timestamp"): str,
+        vol.Required("weight"): float,
+        vol.Optional("percent_fat"): float,
+        vol.Optional("percent_hydration"): float,
+        vol.Optional("visceral_fat_mass"): float,
+        vol.Optional("bone_mass"): float,
+        vol.Optional("muscle_mass"): float,
+        vol.Optional("basal_met"): float,
+        vol.Optional("active_met"): float,
+        vol.Optional("physique_rating"): float,
+        vol.Optional("metabolic_age"): float,
+        vol.Optional("visceral_fat_rating"): float,
+        vol.Optional("bmi"): float
+    }
+)
 
 class GarminConnectSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Garmin Connect Sensor."""
@@ -248,7 +268,7 @@ class GarminConnectGearSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._attr_device_class = self._device_class
         self._attr_icon = GEAR_ICONS[sensor_type]
-        self._attr_native_unit_of_measurement = LENGTH_KILOMETERS
+        self._attr_native_unit_of_measurement = UnitOfLength.KILOMETERS
         self._attr_unique_id = f"{self._unique_id}_{self._uuid}"
         self._attr_state_class = SensorStateClass.TOTAL
         self._attr_device_class = "garmin_gear"

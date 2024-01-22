@@ -37,7 +37,6 @@
     target:
       entity_id:
       - light.bordlampe
-      - light.gulvlampe
   - delay:
       hours: 0
       minutes: 2
@@ -49,7 +48,6 @@
     target:
       entity_id:
       - light.bordlampe
-      - light.gulvlampe
   mode: restart
 - id: wake_up
   alias: 2 - Wake up

@@ -101,41 +101,46 @@ class GarminConnectDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict:
         """Fetch data from Garmin Connect."""
+
+        summary = {}
+        body = {}
+        activites = {}
+        alarms = {}
+        gear = {}
+        gear_stats = {}
+        gear_defaults = {}
+        activity_types = {}
+        sleep_data = {}
+        sleep_score = None
+        
         try:
             summary = await self.hass.async_add_executor_job(
                 self._api.get_user_summary, date.today().isoformat()
             )
-            _LOGGER.debug(summary)
+            _LOGGER.debug(f"Summary data: {summary}")
+            
             body = await self.hass.async_add_executor_job(
                 self._api.get_body_composition, date.today().isoformat()
             )
+            _LOGGER.debug(f"Body data: {body}")
+
             activities = await self.hass.async_add_executor_job(
                 self._api.get_activities_by_date, (date.today()-timedelta(days=7)).isoformat(), (date.today()+timedelta(days=1)).isoformat()
             )
+            _LOGGER.debug(f"Activities data: {activities}")
+            summary['lastActivities'] = activities
 
-
-            _LOGGER.debug(body)
             alarms = await self.hass.async_add_executor_job(self._api.get_device_alarms)
-            _LOGGER.debug(alarms)
-            gear = await self.hass.async_add_executor_job(
-                self._api.get_gear, summary[GEAR.USERPROFILE_ID]
-            )
-            tasks: list[Awaitable] = [
-                self.hass.async_add_executor_job(
-                    self._api.get_gear_stats, gear_item[GEAR.UUID]
-                )
-                for gear_item in gear
-            ]
-            gear_stats = await asyncio.gather(*tasks)
+            _LOGGER.debug(f"Alarms data: {alarms}")
+
             activity_types = await self.hass.async_add_executor_job(
                 self._api.get_activity_types
             )
-            gear_defaults = await self.hass.async_add_executor_job(
-                self._api.get_gear_defaults, summary[GEAR.USERPROFILE_ID]
-            )
+            _LOGGER.debug(f"Activity types data: {activity_types}")
+
             sleep_data = await self.hass.async_add_executor_job(
                 self._api.get_sleep_data, date.today().isoformat())
-
+            _LOGGER.debug(f"Sleep data: {sleep_data}")
         except (
             GarminConnectAuthenticationError,
             GarminConnectTooManyRequestsError,
@@ -146,12 +151,33 @@ class GarminConnectDataUpdateCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed(error) from error
             return {}
 
-        sleep_score = None
+        try:
+            gear = await self.hass.async_add_executor_job(
+                self._api.get_gear, summary[GEAR.USERPROFILE_ID]
+            )
+            _LOGGER.debug(f"Gear data: {gear}")
+
+            tasks: list[Awaitable] = [
+                self.hass.async_add_executor_job(
+                    self._api.get_gear_stats, gear_item[GEAR.UUID]
+                )
+                for gear_item in gear
+            ]
+            gear_stats = await asyncio.gather(*tasks)
+            _LOGGER.debug(f"Gear stats data: {gear_stats}")
+
+            gear_defaults = await self.hass.async_add_executor_job(
+                self._api.get_gear_defaults, summary[GEAR.USERPROFILE_ID]
+            )
+            _LOGGER.debug(f"Gear defaults data: {gear_defaults}")
+        except:
+            _LOGGER.debug("Gear data is not available")
+
         try:
             sleep_score = sleep_data["dailySleepDTO"]["sleepScores"]["overall"]["value"]
+            _LOGGER.debug(f"Sleep score data: {sleep_score}")
         except KeyError:
-            _LOGGER.debug("sleepScore was absent")
-        summary['lastActivities'] = activities
+            _LOGGER.debug("Sleep score data is not available")
 
         return {
             **summary,
@@ -207,3 +233,27 @@ class GarminConnectDataUpdateCoordinator(DataUpdateCoordinator):
             await self.hass.async_add_executor_job(
                 self._api.set_gear_default, activity_type_id, entity.uuid, True
             )
+
+    async def add_body_composition(self, entity, service_data):
+        """Record a weigh in/body composition"""
+        if not await self.async_login():
+            raise IntegrationError(
+                "Failed to login to Garmin Connect, unable to update"
+            )
+
+        await self.hass.async_add_executor_job(
+            self._api.add_body_composition,
+                    service_data.data.get("timestamp", None),
+                    service_data.data.get("weight"),
+                    service_data.data.get("percent_fat", None),
+                    service_data.data.get("percent_hydration", None),
+                    service_data.data.get("visceral_fat_mass", None),
+                    service_data.data.get("bone_mass", None),
+                    service_data.data.get("muscle_mass", None),
+                    service_data.data.get("basal_met", None),
+                    service_data.data.get("active_met", None),
+                    service_data.data.get("physique_rating", None),
+                    service_data.data.get("metabolic_age", None),
+                    service_data.data.get("visceral_fat_rating", None),
+                    service_data.data.get("bmi", None)
+        )
