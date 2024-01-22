@@ -22,11 +22,52 @@
     entity_id: person.geoffrey
     state: home
   action:
+  - parallel:
+    - service: media_player.shuffle_set
+      metadata: {}
+      data:
+        shuffle: false
+      target:
+        entity_id: media_player.bedroom
+    - service: media_player.volume_set
+      metadata: {}
+      data:
+        volume_level: 0.14
+      target:
+        device_id: 56420598d2a79acc3aff36a0fae2f35c
+    - service: media_player.play_media
+      target:
+        entity_id: media_player.bedroom
+      data:
+        media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12/spotify:playlist:37i9dQZF1DWStLt4f1zJ6I
+        media_content_type: spotify://playlist
+      metadata:
+        title: Songs For Sleeping
+        thumbnail: https://i.scdn.co/image/ab67706f00000003ec54f98c4528e2e50687dc23
+        media_class: playlist
+        children_media_class: track
+        navigateIds:
+        - {}
+        - media_content_type: spotify://library
+          media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12
+        - media_content_type: spotify://current_user_playlists
+          media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12/current_user_playlists
+    - delay:
+        hours: 1
+        minutes: 30
+        seconds: 0
+        milliseconds: 0
+    - service: media_player.media_stop
+      metadata: {}
+      data: {}
+      target:
+        entity_id: media_player.bedroom
   - service: light.turn_off
     data:
       transition: 0
     target:
       entity_id: light.home
+    enabled: false
   - service: light.turn_on
     data:
       transition: 5
@@ -221,6 +262,45 @@
     data: {}
     target:
       entity_id: input_boolean.execute_wake_up_script
+  - parallel:
+    - service: media_player.shuffle_set
+      target:
+        entity_id: media_player.bedroom
+      data:
+        shuffle: true
+    - service: media_player.volume_set
+      metadata: {}
+      data:
+        volume_level: 0.16
+      target:
+        entity_id: media_player.bedroom
+    - service: media_player.play_media
+      target:
+        entity_id: media_player.bedroom
+      data:
+        media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12/spotify:playlist:37i9dQZF1DX7cZxYLqLUJl
+        media_content_type: spotify://playlist
+      metadata:
+        title: Wake Up Gently
+        thumbnail: https://i.scdn.co/image/ab67706f000000036de2f3f49773248113cb8794
+        media_class: playlist
+        children_media_class: track
+        navigateIds:
+        - {}
+        - media_content_type: spotify://library
+          media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12
+        - media_content_type: spotify://current_user_playlists
+          media_content_id: spotify://03b17a2439bbc632723c66c8ce6e1d12/current_user_playlists
+    - delay:
+        hours: 1
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - service: media_player.media_stop
+      metadata: {}
+      data: {}
+      target:
+        entity_id: media_player.bedroom
   - service: light.turn_on
     data:
       transition: 60

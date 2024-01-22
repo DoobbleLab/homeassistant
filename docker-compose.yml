@@ -11,6 +11,7 @@ services:
       - automation_homeassistant
     ports:
       - "8123:8123"
+      - "1400:1400" # For SONOS integration
     depends_on:
       - ha-db
 
