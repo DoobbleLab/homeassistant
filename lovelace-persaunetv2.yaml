@@ -236,10 +236,17 @@ views:
         entities:
           - entity: sensor.atb_brian_smiths_gate_platform_75371
             name: Brian Smiths Gate
-            destination: Bakkegata
+            destination: Sentrum
+          - entity: sensor.atb_olav_tryggvasons_gate_platform_2
+            name: Olav Tryggvasons gate
+            destination: Brian Smiths Gate
           - entity: sensor.atb_bakkegata_platform_74793
             name: Bakkegata
             destination: Brian Smiths Gate
+          - entity: sensor.atb_solsiden_platform_73976
+            name: Solsiden
+            destination: Brian Smiths Gate
+        divide_routes: true
   - title: Tesla
     path: tesla
     icon: mdi:car

@@ -11,6 +11,8 @@
    stop_ids:
       - 'NSR:StopPlace:43896'
       - 'NSR:StopPlace:43577'
+      - 'NSR:StopPlace:43133'
+      - 'NSR:StopPlace:43460'
    line_whitelist:
       - 'ATB:Line:2_22'
   
